@@ -1,0 +1,2 @@
+# LaTeX
+LaTeX style class
