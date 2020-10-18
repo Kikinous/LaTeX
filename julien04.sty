@@ -1,0 +1,654 @@
+% AUTHOR: julienborghetti
+% Documentation: (bash) $ texdoc xcolor
+% https://texfaq.org
+% https://www.overleaf.com/learn
+% Todo:
+% 1 - hyperref : revenir de là où l'on vient ? pagebackref ?
+% 2 -
+% 3 -
+% Bug:
+% 1 -
+% 2 -
+% 3 -
+% Version: 03 - janv 2109 (end date)
+% Version: 04 - fev 2019  (starting date)
+
+\NeedsTeXFormat{LaTeX2e}[1999/01/01]
+\ProvidesPackage{julien04}[2020/09/12]
+\message{Debut du paquet julien04}
+
+% Options : {{{1
+\newif\if@test           \@testfalse         \DeclareOption{test}        {\@testtrue}         % debug
+\newif\if@code           \@codefalse         \DeclareOption{code}        {\@codetrue}         % python, minted, lstlistings
+\newif\if@cours          \@coursfalse        \DeclareOption{cours}       {\@courstrue}        % env theoreme, definition....
+\newif\if@xeTeX          \@xeTeXfalse        \DeclareOption{xeTeX}       {\@xeTeXtrue}        % env theoreme, definition....
+\newif\if@sansActivite   \@sansActivitefalse \DeclareOption{sansActivite}{\@sansActivitetrue} % ne pas inclure les activites du cours
+\newif\if@sectionne      \@sectionnefalse    \DeclareOption{sectionne}   {\@sectionnetrue}    % new page aux sections
+\newif\if@subsectionne   \@subsectionnefalse \DeclareOption{subsectionne}{\@subsectionnetrue} % new page aux sections
+\newif\if@rare           \@rarefalse         \DeclareOption{rare}        {\@raretrue}         % package d utilisation rare, pour l'instant
+\newif\if@noexternal     \@noexternalfalse   \DeclareOption{noexternal}  {\@noexternaltrue}   % \tikzmark + \tikzlings
+
+\newlength{\PageMargeH}        \newlength{\PageMargeV}        \newlength{\PageMargeEntete}   
+\setlength{\PageMargeH}{2cm}   \setlength{\PageMargeV}{2cm}   \setlength{\PageMargeEntete}{1em}
+\DeclareOption{large}         { \setlength{\PageMargeH}{1cm}    \setlength{\PageMargeV}{1cm}  \setlength{\PageMargeEntete}{.5em} }
+\DeclareOption{largeurMax}    { \setlength{\PageMargeH}{4ex}    \setlength{\PageMargeV}{2em}  \setlength{\PageMargeEntete}{0em} }
+\DeclareOption{largeur66car}  { \setlength{\PageMargeH}{4.7cm}  \setlength{\PageMargeV}{3cm}  \setlength{\PageMargeEntete}{1em} }
+\DeclareOption{memoire}       { \setlength{\PageMargeH}{3cm}    \setlength{\PageMargeV}{2cm}  \setlength{\PageMargeEntete}{1em} }
+
+\ProcessOptions\relax%
+%
+%}}}
+% ========================================================================
+% Packages
+% Package de BASE         {{{1
+% Encodage, caractères et fontes {{{2
+% Pour tester : /Users/julienborghetti/.vim/julien/snippets/latex/fontes.tex {{{
+%   https://computers.tutsplus.com/tutorials/beyond-calibri-selecting-typefaces-to-make-your-documents-shine--cms-21647
+%   sans serif : Helvetica Neue, Gill Sans, Avenir, Futura, Comic Sans MS
+%   avec serif : Hoefler Text, Garamond, Baskerville, STIX, Verdana, Georgia
+%   monotype   : CourierNewPSMT, PtMono-Regular
+%   pour enfant (all shapes)     : helvetica, futura, Comic Sans MS, KG Neatly Printed,
+%   pour enfant (missing shapes) :  KG Neatky Printed, Patrick Hand, Chalkboard
+%   pairing  ( Helvetica Neue , Garamond ) ; ( Avenir , Hoefler Text )
+%
+% }}}
+\if@xeTeX
+  \RequirePackage[fleqn]{amsmath}                                     % Maths : outils, 1985
+  \RequirePackage{mathspec}                                           % FONTS : fonte pour les maths -- charge fontspec aussi en fait
+  \RequirePackage{fontspec}                                           % FONTS : fontes du systeme -- Livre des polices sur macos
+  \defaultfontfeatures{}                                              % FONTS :
+                                                                      % \setmainfont{STIX Two Text}                                                                                                              % FONTS : fonte du document
+                                                                      % \setmathfont(Digits,Latin,Greek)[Numbers=Lining]{STIX Two Math}                                                                          % FONTS : fonte pour mode math
+                                                                      % \setmathfont(Digits,Latin,Greek)[Numbers=Lining]{Open Sans}                                                                              % FONTS : fonte pour mode math
+                                                                      % \setmainfont[Scale=0.92]{Helvetica}                                                                                                      % FONTS :
+                                                                      % \setmainfont[Scale=0.86]{Comic Sans MS}                                                                                                  % FONTS :
+                                                                      % \setmathfont(Digits,Latin)[Scale=MatchLowercase]{Helvetica}                                                                              % FONTS :
+  \setmainfont{HelveticaNeue}                                         % FONTS :
+  \RequirePackage[asterisk,mathaccents,defaultmathsizes]{mathastext}  % FONTS : utilise en mode math les caractere de mainfont pour abcdefghi pqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789 !?,.:;+-=()[]/#$ % &<>|{}\
+  \newfontfamily\fontEntete[Ligatures=TeX]{HelveticaNeue-UltraLight}  % fontes pour entete et pied de page
+  \newcommand{\fontEntetePieddepage}{\fontEntete}                     % fontes pour entete et pied de page
+                                                                      % \DeclareTextFontCommand{\emph}{\fseries\em}
+  \RequirePackage{polyglossia}                                        % regles typo
+  \setdefaultlanguage{french}                                         % doc en fr
+                                                                      % \renewcommand{\emph}[1]{\textbf{\textit{#1}} }
+\else                                                                 % chktex 1
+  \RequirePackage[T1]{fontenc}                                        % OT1, T1
+  \RequirePackage[utf8]{inputenc}                                     % cadage ASCII, latin1, utf8, applemac
+  \RequirePackage[french]{babel}                                      % regles type
+  \RequirePackage[fleqn]{amsmath}                                     % Maths : outils, AMS 1985
+                                                                      % \RequirePackage[scaled=0.86]{helvet}                                                                                                     % fonte
+                                                                      % \RequirePackage[sfdefault,scaled=.85]{FiraSans}
+                                                                      % \RequirePackage[varqu,varl]{zi4}                                                                                                         % inconsolata
+                                                                      % \RequirePackage{amsfonts}                                                                                                                % Fontes Mathematiques
+  \RequirePackage{textcomp}                                           % symboles de text
+  \RequirePackage{lmodern}                                            % fonte
+  \RequirePackage[cmintegrals]{newtxsf}                               % fonte du mode math
+  \renewcommand*\familydefault{\sfdefault}                            % sans serif
+  \newcommand*{\fontEntetePieddepage}{\fontseries{sbc}\selectfont}    % fontes pour entete et pied de page
+\fi
+
+\if@sectionne
+\let\OldSection\section
+\renewcommand{\section}[1]{%
+\ifnum\thesection>0
+\newpage
+\fi
+\OldSection{#1}}
+\fi
+
+
+\if@subsectionne % pas testee
+\let\OldSubSection\subsection
+\renewcommand{\subsection}[1]{\newpage\OldSubSection{#1}}
+\fi
+
+\if@sansActivite
+\renewcommand{\appendix}{\end{document}}
+\fi
+% }}}
+% Divers {{{2
+%
+\RequirePackage{microtype}                                                     % includefigure with png et jpg
+\RequirePackage[dvipsnames,table,rgb]{xcolor}                                  % couleurs, dvipsnames: https://en.wikibooks.org/wiki/LaTeX/Colors
+\RequirePackage{graphicx}                                                      % includefigure with png et jpg
+\RequirePackage{pgfkeys}                                                       % arbre de clefs + calculs -- independant de pgf
+\RequirePackage{lipsum}                                                        % pour tester
+%\RequirePackage{embedall}                                                      % ajoute les sources au pdf
+\RequirePackage{attachfile}                                                    % icone pour ajouter des docs
+% }}}
+% }}}
+% Package de EDITION         {{{1
+\RequirePackage{tabularx}                                                      % tableaux largeur de la page
+\RequirePackage{booktabs}                                                      % tableaux professionnels
+\RequirePackage{multicol}                                                      % texte sur plusieurs colonnes ex: QCM horizontaux
+
+\frenchbsetup{StandardLists=true}                                              % si on utilise l'extension \usepackage[french]{babel}, il faut ajouter juste après (toujours dans le préambule) le code \frenchbsetup{StandardLists=true} afin d'éviter tout conflit entre babel et enumitem
+\RequirePackage{enumitem}                                                      % personnalisation des listes se base sur l'extension enumitem
+\RequirePackage{dashundergaps}                                                 % texte à trous
+%
+%}}}
+% Package de MISE EN PAGE  {{{1
+%
+% Marges
+\RequirePackage{geometry}                                                       % pour parametrer la taille de la page
+\geometry{%
+  headheight    = 1em,                                                          % 1em = hauteur de M, 1ex = largeur de x
+  headsep       = \PageMargeEntete,
+  top           = \dimexpr\PageMargeV,
+  footskip      = 1.5em,
+  bottom        = \dimexpr\PageMargeV+0.5em,
+  hmargin       = \PageMargeH,
+  bindingoffset = 0cm,
+  centering,
+  a4paper
+}
+% Paragraphes
+\setlength{\parindent}{0pt}                                                     % indenttation apres \par
+%\setlength{\parskip}{6pt}                                                       % Distance entre paragraphes
+\renewcommand{\baselinestretch}{1}                                              % inter-ligne
+%
+% En-têtes / pieds de page
+\RequirePackage{fancyhdr}                                                       % configuration ci-dessous
+\RequirePackage{lastpage}                                                       %
+\pagestyle{fancy}                                                               % Numérotation des pages
+\setlength{\headheight}{14.00pt}                                                %
+\renewcommand\footrulewidth{0pt}                                                %
+\renewcommand\headrulewidth{0pt}                                                %
+\fancyhead[L]{}
+\fancyhead[C]{????}
+\fancyhead[R]{}
+\fancyfoot[L]{}
+\fancyfoot[C]{\small{\thepage~sur~\pageref*{LastPage}}~}
+\fancyfoot[R]{}
+% }}}
+% Package de COLLEGE {{{1
+
+\if@cours
+\RequirePackage{mdframed}  % encadrés pour theoremes et definition
+\RequirePackage{comment}   % rend optionel le contenu d'un environment
+\RequirePackage{xlop}      % calcul posé automatique
+\RequirePackage{ticollege} % ATTENTION, conflit avec d'autres packets parfois
+\fi
+
+% }}}
+% Package de MATHS {{{1
+% algèbre %{{{2
+\setlength{\mathindent}{0cm}
+%
+% }}}
+% géométrie {{{2
+
+\RequirePackage{pgf,tikz}   % dessin
+\usetikzlibrary{arrows}     %
+\if@noexternal
+  \usetikzlibrary{tikzmark}   % pour annoter avec des flèches
+  \RequirePackage{tikzlings} % marmottes amusantes
+% \RequirePackage{tikzlings-marmots} % marmottes amusantes -- not in texlive
+\else
+  \usetikzlibrary{external}   % compilation unique des nouvelles figures tikz
+% \tikzexternalize            % activate!
+  \tikzexternalize[prefix=tikz/,optimize command away=\includepdf]
+\fi
+\RequirePackage{pgfplots}   % plotting
+\RequirePackage{standalone} % pour inclure des fichiers latex en classe standalone
+% \RequirePackage{tkz-base}
+\RequirePackage{tkz-euclide}
+% \usetkzob{all}
+
+% Code {{{2
+\if@code
+%\RequirePackage[lined,boxed,commentsnumbered, ruled,vlined,linesnumbered, french]{agorithm2e}   %
+% latexmk -latexoption=-shell-escape % execution de programme externe pour minted et python
+\RequirePackage[cache=false]{minted}                                                            % couleur syntaxique du code
+\RequirePackage{python}                                                                         % excuter du code python dans du LaTeX
+%% listings                                        {{{3
+%\RequirePackage{listings}                                                           %
+%\definecolor{mygreen}{rgb}{0,0.6,0}
+%\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+%\definecolor{mymauve}{rgb}{0.58,0,0.82}
+%\definecolor{deepblue}{rgb}{0,0,0.5}
+%\definecolor{deepred}{rgb}{0.6,0,0}
+%\definecolor{deepgreen}{rgb}{0,0.5,0}
+%\lstset{%
+%% backgroundcolor=\color{white},   % choose the background color; you must add \RequirePackage{color} or \RequirePackage{xcolor}; should come as last argument
+%basicstyle=\footnotesize,        % the size of the fonts that are used for the code
+%% breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+%% breaklines=true,                 % sets automatic line breaking
+%% captionpos=b,                    % sets the caption-position to bottom
+%commentstyle=\color{mygreen},    % comment style
+%% deletekeywords={type},           % if you want to delete keywords from the given language
+%% emph={},                         % Custom highlighting
+%% emphstyle=\ttb\color{deepred}    % Custom highlighting style
+%% escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+%% extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+%frame=shadowbox,                 % adds a frame around the code {single, shadowbox}
+%% keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+%keywordstyle=\color{blue},       % keyword style
+%language=C,                      % the language of the code {Python, C}
+%% morekeywords={*,...},            % if you want to add more keywords to the set
+%numbers=left,                    % numbers = (none, left, right)
+%% numbersep=5pt,                   % how far the line-numbers are from the code
+%% numberstyle=\tiny\color{mygray}, % the style that is used for the line-numbers
+%% otherkeywords={self},            % Add keywords here
+%% rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+%rulesepcolor=\color{gray}        % shadowbox color
+%% showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+%% showstringspaces=false,          % underline spaces within strings only
+%% showtabs=false,                  % show tabs within strings adding particular underscores
+%% stepnumber=1,                    % the step between two line-numbers. If it's 1, each line will be numbered
+%% stringstyle=\color{mymauve},     % string literal style
+%% tabsize=4,                       % sets default tabsize to 2 spaces
+%% title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+%}
+%}}}
+\fi
+%
+% }}}
+% divers %{{{2
+\RequirePackage{mathrsfs}                                                      % caligraphie
+\RequirePackage{gensymb}                                                       % \degree \celsius \perthousand \ohm \micro
+%\RequirePackage{siunitx}                                                      % unités physique
+% }}}
+
+% }}}
+% Package    AVANCES         {{{1
+\if@rare
+\RequirePackage{ifthen}                                                        % for if while, mais whiledo est déjà disponible pour une raison pas explorée.
+\RequirePackage{csvsimple}                                                     % fichier csv ; tableau ou publipostage
+\fi
+%}}}
+% Package à charger en dernier {{{1
+
+%\href{URL}{text}         — Makes text a link to URL.
+%\hyperref[label]{text}   — Makes text a link to where \ref{label} would point.
+%\hypertarget{name}{text} — Sets an anchor on text with the label name.
+%\hyperlink{name}{text}   — Makes text a link that takes you to the anchor labeled name. Pair with \hypertarget.
+%\phantomsection          — Used in conjunction with \addcontentsline to make the correct link in the Table of Contents.
+%
+\RequirePackage{hyperref} % dernier a charger
+\hypersetup{
+%   xetex=true,
+    bookmarks=true,               % show bookmarks bar?
+    bookmarksnumbered=true,
+    unicode=false,                % non-Latin characters in Acrobat’s bookmarks
+    pdftoolbar=true,              % show Acrobat’s toolbar?
+    pdfmenubar=true,              % show Acrobat’s menu?
+    pdffitwindow=false,           % window fit to page when opened
+    pdfstartview={FitH},          % fits the width of the page to the window, FitV
+    pdftitle={My title},          % title
+    pdfauthor={M. Borghetti},     % author
+    pdfsubject={Subject},         % subject of the document
+    pdfcreator={Creator},         % creator of the document
+    pdfproducer={Mr. Borghetti},  % producer of the document
+    pdfkeywords={keyword1, key3}, % list of keywords
+    pdfnewwindow=true,            % links in new PDF window
+    colorlinks=true,              % false: boxed links; true: colored links
+    pagebackref=true,             %
+    linkcolor=Blue,               % color of internal links (change box color with linkbordercolor)
+    citecolor=Blue,               % color of links to bibliography
+    filecolor=Blue,               % color of file links
+    frenchlinks=false,            % small caps instead of colors for links
+    backref=true,                 %
+    pagebackref=false,            %
+    urlcolor=Blue                 % color of external links
+}
+%
+% }}}
+% ========================================================================
+% Commandes et environements
+% newcommand {{{1
+% questions {{{2
+% \exercice
+\newcounter{exoNB}
+\newcommand{\exo}[1]             {\refstepcounter{exoNB}{\Large Exercice \arabic{exoNB}~---~#1}}
+\newcommand{\exoPoints}[2]       {\refstepcounter{exoNB}{\Large Exercice \arabic{exoNB}~---~#1} \hfill        \textbf{#2 points}}
+\newcommand{\exoComp}[2]         {\refstepcounter{exoNB}{\Large Exercice \arabic{exoNB}~---~#1} \hfill        \textbf{(#2)}}
+\newcommand{\exoCompPoints}[3]   {\refstepcounter{exoNB}{\Large Exercice \arabic{exoNB}~---~#1} \hfill {[#2]} \textbf{#3 points}}
+%\begin{tabularx}{\linewidth}{|l|l|l|X|p{10mm}|} \hline
+%\ref{ex:dtegraduee_enti}   & Représenter & Re2 & utiliser diverses représentation des nombres &\hspace{4mm}\\ \hline
+%\end{tabularx}\\
+%\exoCompPoints{Droite graduée avec des entiers}{Re2}{5}\label{ex:dtegraduee_enti}\\[3mm]
+
+
+% \questions
+\newcommand{\pointilles}[1]{\makebox[#1]{\bfseries\tiny\dotfill}}
+\newcounter{Q}
+\newcommand{\question}{\stepcounter{Q} $\boxed{\arabic{Q}}$ }
+% \pointillesLigne
+\newlength{\xa} \newlength{\xb}
+\newcommand{\pointillesLigne}[1]{ { \setlength{\xa}{\linewidth}  \settowidth{\xb}{#1}   \addtolength{\xa}{-\xb}%
+     #1 \noindent\pointilles{\xa} } }
+% \questionReponse
+\newcommand{\questionReponse}[1] { \stepcounter{Q} \setlength{\xa}{\linewidth}  \settowidth{\xb}{$\boxed{\arabic{Q}}$#1\ } \addtolength{\xa}{-\xb}%
+    \vspace{5mm}\par\nobreak\noindent\rule{0pt}{1.0\baselineskip}%
+    $\boxed{\arabic{Q}}$ #1\pointilles{\xa}\endgraf}
+
+%}}}
+% reponse {{{2
+%
+% \reponse
+\newcommand{\reponse} {%
+    \vspace{3mm}\par\nobreak\noindent\rule{0pt}{1.0\baselineskip}%
+    \pointilles{\linewidth}\endgraf}
+% \rep
+\newcommand{\rep}[1]
+    { { \noindent\pointilles{#1cm}} }
+% \cadreblanc
+%
+\newcommand{\cadreblanc}[1]{          % \cadreblanc{5} -> 5cm de hauteur
+    \framebox[\linewidth][c]{ \rule{0mm}{#1cm}}\par }
+%
+% \boitereponse
+\newcommand{\cadregris}[1]
+     {%\par
+     \fcolorbox{gray}{white}{%
+     \begin{minipage}{\dimexpr\linewidth-5mm}%
+     \vspace{#1 cm}%
+     \hspace{\linewidth}%
+     \end{minipage}}%
+     }
+
+%}}}
+% Divers {{{2
+%
+% \nom
+%
+\newcommand{\nom}{NOM~: \rep{3}\hspace{0.6cm} Prénom~: \rep{3}}
+
+\newcommand{\nomclasse}{NOM~: \rep{3}\hspace{0.6cm} Prénom~: \rep{3}\hspace{0.6cm} Classe~: \rep{.5}}
+%
+% \couperici
+\RequirePackage{pifont}
+\newcommand{\couperici}{%
+\noindent
+\raisebox{-2.8pt}[0pt][0.75\baselineskip]{\small\ding{34}}
+\unskip{\tiny\dotfill}}
+%
+% \souligner ( pour theoreme, definition...)
+\RequirePackage{contour}
+\RequirePackage[normalem]{ulem}
+\renewcommand{\ULdepth}{1.8pt}     % distance  -- recommand : 1.8pt
+\renewcommand{\ULthickness}{0.4pt} % distance  -- default : ~0.4pt
+\contourlength{0.8pt}          % autour des lettres
+
+\newcommand{\souligne}[2][white]{%
+  \uline{\phantom{#2}}%
+  \llap{\contour{#1}{#2}}%
+}
+
+\newcommand{\trouge}[1]{\textcolor{red!90!black}{#1}}
+\newcommand{\tvert} [1]{\textcolor{green!60!black}{#1}}
+\newcommand{\tbleu} [1]{\textcolor{blue!100}{#1}}
+
+\newcommand{\C} {\mathscr{C}}
+\newcommand{\A} {\mathscr{A}}
+\newcommand{\V} {\mathscr{V}}
+\newcommand{\F} {\mathscr{F}}
+
+% Pour centrer des colonnes de types fixe
+%      \begin{tabular}{ | C{10mm} | c |}
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+
+% pyramide des nombres {{{3
+% pour créer la pyramide (#1 est le nombre de cases en bas)
+\newcommand{\pyramidedenombres}[1]{
+ \pgfmathparse{#1-1};
+ \edef\yy{\pgfmathresult};
+ \foreach \y in {0,1,...,\yy}{
+ \pgfmathparse{\yy-\y};
+ \edef\xx{\pgfmathresult};
+ \foreach \x in {0,...,\xx}{
+ \draw (\x+0.5*\y,1+\y) rectangle (\x+1+0.5*\y,0+\y);
+ }
+ };
+}
+% pour placer dans la pyramide a l'étage #1 dans la case #2 le nombre #3
+\newcommand{\pyramideplacernombre}[3]{
+ \pgfmathparse{0.5*#1+#2-1};
+ \edef\xx{\pgfmathresult};
+ \pgfmathparse{#1-0.5};
+ \edef\yy{\pgfmathresult};
+ \draw (\xx,\yy) node {$#3$};
+}
+% EXEMPLE:
+%\begin{tikzpicture}
+%\pyramidedenombres{4}
+%\pyramideplacernombre{2}{3}{4}
+%\end{tikzpicture}
+%}}}
+
+\newcommand{\marque}[1]{\tikz[remember picture]\coordinate(#1);}
+%\begin{tikzpicture}[remember picture,overlay]
+%\draw [<-,dashed] (def1) to[out=0,in=180] (ex1);
+%\end{tikzpicture}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%texte à trous en pointillés%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\makeatletter
+\newbox\MaBoite
+\newbox\Point
+\newlength\pointwd
+\setbox\Point=\hbox{.}
+\newcommand{\trou}{%
+\@ifstar\affiche\tr@u}
+\newcommand{\tr@u}[1]{%
+	\ifx\@empty#1\@empty%
+	\fi%
+	\noindent
+	\leavevmode%
+		\ifmmode%
+			\ifinner\savebox\MaBoite{$#1$}%maths en ligne
+			\else\savebox\MaBoite{$\displaystyle#1$}%maths hors ligne
+			\fi%
+		\else\savebox{\MaBoite}{#1}%
+		\fi%
+		\setlength\pointwd{0pt}%
+	\loop%
+		\ifdim\pointwd<\wd\MaBoite%
+		\rule{0pt}{\baselineskip}\usebox{\Point}\hskip-\fboxrule %
+		\advance\pointwd by 0.6\wd\Point %coefficient à ajuster 
+	\repeat%
+}
+\newcommand{\affiche}[1]{#1}%
+\makeatletter
+
+\newcommand{\trouRempli}{
+  \renewcommand{\trou}{}
+}
+
+%}}}
+%}}}
+% newenvironment {{{1
+% Définition, théorème, propriétés, remarques...{{{2
+\if@cours
+
+  \newenvironment{definition}[1][]
+    {
+    \mdfdefinestyle{mystyle}{leftmargin=0cm, linecolor=OliveGreen!20, backgroundcolor=OliveGreen!20} % couleur de dvipsnames
+    \begin{mdframed}[style=mystyle]
+    \textbf{\textcolor{OliveGreen}{\souligne[OliveGreen!20]{Définition#1}} }\\%
+    }
+    {
+    \end{mdframed}
+    }
+
+  \newenvironment{theoreme}[1][ (admis)]
+    {
+    \mdfdefinestyle{mystyle}{leftmargin=0cm, linecolor=BrickRed!20, backgroundcolor=BrickRed!20}     % couleur de dvipsnames
+    \begin{mdframed}[style=mystyle]
+    \textbf{\textcolor{BrickRed}{\souligne[BrickRed!20]{Théorème#1}} }\\%
+    }
+    {
+    \end{mdframed}
+    }
+
+  \newenvironment{propriete}[1][ (admise)]
+    {
+    \mdfdefinestyle{mystyle}{leftmargin=0cm, linecolor=BrickRed!20, backgroundcolor=BrickRed!20}      % couleur de dvipsnames
+    \begin{mdframed}[style=mystyle]
+    \textbf{\textcolor{BrickRed}{\souligne[BrickRed!20]{Propriété#1}} }\\%
+    }
+    {
+    \end{mdframed}
+    }
+
+  \newenvironment{methode}[1][]
+    {
+    \mdfdefinestyle{mystyle}{leftmargin=0cm, linecolor=Black!10, backgroundcolor=Black!10}      % couleur de dvipsnames
+    \begin{mdframed}[style=mystyle]
+    \textbf{\textcolor{Black!80}{\souligne[Black!10]{Méthode#1}} }\\%
+    }
+    {
+    \end{mdframed}
+    }
+
+
+  \specialcomment{activite}                                                                           % package comment : pour rendre un environnement optionel
+    {%
+    \mdfdefinestyle{mystyle}{leftmargin=0cm, linecolor=Black!10, backgroundcolor=Gray!10}%             % couleur de dvipsnames
+    \begin{mdframed}[style=mystyle]
+    \small%
+    \textbf{\textcolor{Black!70}{\souligne[Gray!10]{Activité}} }\\%
+    \footnotesize%
+    \color{Black!70}%
+    }
+    {%
+    \normalsize%
+    \color{Black!70}%
+    \end{mdframed}%
+    }
+  \if@sansActivite
+    \excludecomment{activite}
+  \fi
+
+  \newenvironment{demonstration}
+    { \textbf{\souligne{Demonstration}} \\ }
+    { }
+  \newenvironment{exemple}[1][]
+    { \textbf{\souligne{Exemple#1}} \\ }
+    { }
+  \newenvironment{remarque}[1][]
+    { \textbf{\souligne{Remarque#1}} \\ }
+    { }
+  \newenvironment{application}[1][]
+    { \textbf{\souligne{Application#1}} \\ }
+    { }
+  \newenvironment{casparticulier}[1][]
+    { \textbf{\souligne{Cas particulier#1}} \\ }
+    { }
+  \newenvironment{vocabulaire}[1][]
+    { \textbf{\souligne{Vocabulaire#1}} \\ }
+    { }
+  \newenvironment{notation}[1][]
+    { \textbf{\souligne{Notation#1}} \\ }
+    { }
+  \newenvironment{codage}[1][]
+    { \textbf{\souligne{Codage#1}} \\ }
+    { }
+%  \newenvironment{methode}[1][]
+%    { \textbf{\souligne{Méthode#1}} \\ }
+%    { }
+
+\fi % \if@cours
+
+%}}}
+%
+%}}}
+% ========================================================================
+% Reserve ; sesamaths
+% BACKUP sesamanuel-tikz {{{1
+\RequirePackage{esvect,cancel}
+\newcommand{\chapeaumelon}[1]{\stackrel{\Large \frown}{#1}}
+
+%%%%%%%% pour les figures en tikz
+%\RequirePackage{tikz}
+%\RequirePackage{tkz-tab,tkz-euclide}
+%\RequirePackage{tkz-euclide}
+%\usetkzobj{all}
+%\RequirePackage{pgf}
+\usetikzlibrary{arrows}
+\usetikzlibrary{patterns}
+\definecolor{CyanTikz40}{cmyk}{.4,0,0,0}
+\definecolor{CyanTikz20}{cmyk}{.2,0,0,0}
+
+\definecolor{B1prime}      {cmyk}{0.00, 1.00, 0.00, 0.50}
+\definecolor{H1prime}      {cmyk}{0.50, 0.00, 1.00, 0.00}
+
+\tikzstyle{general}         =[font=\fontsize{7.5}{9}\selectfont,line width=0.3mm, >=stealth, x=1cm, y=1cm,line cap=round, line join=round]
+\tikzstyle{quadrillage}     =[line width=0.3mm, color=CyanTikz40]
+\tikzstyle{quadrillageNIV2} =[line width=0.3mm, color=CyanTikz20]
+\tikzstyle{quadrillage55}   =[line width=0.3mm, color=CyanTikz40, xstep=0.5, ystep=0.5]
+\tikzstyle{cote}            =[line width=0.3mm, <->]
+\tikzstyle{epais}           =[line width=0.5mm, line cap=butt]
+\tikzstyle{tres epais}      =[line width=0.8mm, line cap=butt]
+\tikzstyle{axe}             =[line width=0.3mm, ->, color=Noir, line cap=rect]
+\newcommand{\quadrillageSeyes}[2]{%
+  \draw[line width=0.3mm, color=A1!10, ystep=0.2, xstep=0.8] #1 grid #2;
+  \draw[line width=0.3mm, color=A1!30, xstep=0.8, ystep=0.8] #1 grid #2;
+}
+\newcommand{\axeX}[4][0]{%
+  \draw[axe] (#2,#1)--(#3,#1);
+  \foreach \x in {#4} {\draw (\x,#1) node {\small $+$};
+    \draw (\x,#1) node[below] {\small $\numprint{\x}$};
+  }%
+}
+\newcommand{\axeY}[4][0]{%
+  \draw[axe] (#1,#2)--(#1,#3);
+  \foreach \y in {#4} {\draw (#1, \y) node {\small $+$};
+    \draw (#1, \y) node[left] {\small $\numprint{\y}$};
+  }%
+}
+\newcommand{\axeOI}[3][0]{%
+  \draw[axe] (#2,#1)--(#3,#1);
+  \draw (1,#1) node {\small $+$};
+  \draw (1,#1) node[below] {\small $I$};
+}
+\newcommand{\axeOJ}[3][0]{%
+  \draw[axe] (#1,#2)--(#1,#3);
+  \draw (#1, 1) node {\small $+$};
+  \draw (#1, 1) node[left] {\small $J$};
+}
+\newcommand{\axeXgraduation}[2][0]{%
+  \foreach \x in {#2} {\draw (\x,#1) node {\small $+$};}%
+}
+\newcommand{\axeYgraduation}[2][0]{%
+  \foreach \y in {#2} {\draw (#1, \y) node {\small $+$};}%
+}
+\newcommand{\origine}{%
+  \draw (0,0) node[below left] {\small $0$};
+}
+\newcommand{\origineO}{%
+  \draw (0,0) node[below left] {$O$};
+}
+\newcommand{\point}[4]{%
+  \draw (#1,#2) node[#4] {$#3$};
+}
+\newcommand{\pointGraphique}[4]{%
+  \draw (#1,#2) node[#4] {$#3$};
+  \draw (#1,#2) node {$+$};
+}
+\newcommand{\pointFigure}[4]{
+  \draw (#1,#2) node[#4] {$#3$};
+  \draw (#1,#2) node {$\times$};
+}
+\newcommand{\pointC}[3]{
+  \draw (#1) node[#3] {$#2$};
+}
+\newcommand{\pointCGraphique}[3]{
+  \draw (#1) node[#3] {$#2$};
+  \draw (#1) node {$+$};
+}
+\newcommand{\pointCFigure}[3]{
+  \draw (#1) node[#3] {$#2$};
+  \draw (#1) node {$\times$};
+}
+
+
+%}}}
+
+\message{Fin du package julien.sty}
+% noma/ma ;
+% vim: nomodifiable : nospell : fdm=marker :  foldtext=MonFoldText()
